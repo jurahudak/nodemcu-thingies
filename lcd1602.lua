@@ -18,6 +18,7 @@ local M
 do
   -- const
   local ADR = 0x27
+  local CHARS = 16
   -- cache
   local i2c, tmr, delay, ipairs, type, bit, bor, band, bshl =
         i2c, tmr, tmr.delay, ipairs, type, bit, bit.bor, bit.band, bit.lshift
@@ -69,12 +70,12 @@ do
   local run = function(row, s, _delay, timer, callback)
     _delay = _delay or 40
     tmr.stop(timer)
-    local i = 16
+    local i = CHARS
     local runner = function()
       -- TODO: optimize calculus?
       put(
           locate(row, i >= 0 and i or 0),
-          (i >= 0 and s:sub(1, 16 - i) or s:sub(1 - i, 16 - i)),
+          (i >= 0 and s:sub(1, CHARS - i) or s:sub(1 - i, CHARS - i)),
           " "
         )
       if i == -#s then
@@ -82,7 +83,7 @@ do
           tmr.stop(timer)
           callback()
         else
-          i = 16
+          i = CHARS
         end
       else
         i = i - 1
@@ -91,8 +92,9 @@ do
     tmr.alarm(timer, _delay, 1, runner)
   end
   -- start lcd
-  local init = function(adr)
+  local init = function(adr, CHARS)
     ADR = adr or 0x27
+    CHARS = CHARS or 16
     w(0x33, 0)
     w(0x32, 0)
     w(0x28, 0)
